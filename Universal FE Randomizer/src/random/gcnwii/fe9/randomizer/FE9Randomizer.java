@@ -1,32 +1,24 @@
 package random.gcnwii.fe9.randomizer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Item;
-import fedata.gcnwii.fe9.FE9Skill;
 import fedata.gcnwii.fe9.FE9ScriptScene;
+import fedata.gcnwii.fe9.FE9Skill;
 import fedata.gcnwii.fe9.scripting.CallSceneByNameInstruction;
 import fedata.gcnwii.fe9.scripting.NOPInstruction;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
-import io.gcn.GCNByteArrayHandler;
 import io.gcn.GCNCMBFileHandler;
-import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
+import purposeful.AbstractDataModifier;
+import purposeful.fe9.FE9DataModifier;
 import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
@@ -45,18 +37,27 @@ import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.WeaponOptions;
-import util.DebugPrinter;
 import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.ChangelogAsset;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.ChangelogDivider;
 import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
 import util.recordkeeper.ChangelogSection;
 import util.recordkeeper.ChangelogStyleRule;
 import util.recordkeeper.ChangelogTOC;
 import util.recordkeeper.ChangelogTable;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class FE9Randomizer extends Randomizer {
 	private String sourcePath;
@@ -137,6 +138,10 @@ public class FE9Randomizer extends Randomizer {
 		mainTOC.addAnchorWithTitle("character-data", "Character Data");
 		changelogBuilder.addElement(characterSection);
 		
+		ChangelogSection classSection = new ChangelogSection("class-data");
+		mainTOC.addAnchorWithTitle("class-data", "Class Data");
+		changelogBuilder.addElement(classSection);
+
 		ChangelogSection itemSection = new ChangelogSection("item-data");
 		mainTOC.addAnchorWithTitle("item-data", "Item Data");
 		changelogBuilder.addElement(itemSection);
@@ -160,6 +165,7 @@ public class FE9Randomizer extends Randomizer {
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
 			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData, chapterData);
+			classData.recordOriginalClassData(changelogBuilder, classSection, textData);
 			itemData.recordOriginalItemData(changelogBuilder, itemSection, textData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
@@ -173,9 +179,11 @@ public class FE9Randomizer extends Randomizer {
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
 			randomizeWeaponsIfNecessary(seed);
-			
+
+			//I don't know what the condition should be, but this does not need to always occur
+			//Ashnard is much easier if everyone can hurt him
 			makePostRandomizationAdjustments(seed);
-			
+
 			updateStatus(0.50, "Committing changes...");
 			charData.compileDiffs(handler);
 			itemData.compileDiffs(handler);
@@ -183,6 +191,7 @@ public class FE9Randomizer extends Randomizer {
 			skillData.compileDiffs(handler);
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData, chapterData);
+			classData.recordUpdatedClassData(classSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordUpdatedItemData(itemSection, textData);
 			chapterData.recordUpdatedChapterData(chapterSection, textData, charData, classData, skillData, itemData);
 			
@@ -648,6 +657,11 @@ public class FE9Randomizer extends Randomizer {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
 				FE9RewardsRandomizer.addEnemyDrops(charData, itemData, chapterData, miscOptions.enemyDropChance, rng);
 			}
+			if (miscOptions.readDataFile)
+			{
+				AbstractDataModifier dataModifier = new FE9DataModifier(charData, classData, itemData);
+				dataModifier.applyDataUpdates(miscOptions.dataFileSet);
+			}
 		}
 	}
 	
@@ -740,7 +754,7 @@ public class FE9Randomizer extends Randomizer {
 				FE9WeaponRandomizer.randomizeWeaponAccuracy(weaponOptions.hitOptions.variance, weaponOptions.hitOptions.minValue, weaponOptions.hitOptions.maxValue, itemData, rng);
 			}
 			if (weaponOptions.weightOptions != null) {
-				FE9WeaponRandomizer.randomizeWeaponWeight(weaponOptions.weightOptions.variance, weaponOptions.weightOptions.minValue, weaponOptions.weightOptions.maxValue, itemData, rng);		
+				FE9WeaponRandomizer.randomizeWeaponWeight(weaponOptions.weightOptions.variance, weaponOptions.weightOptions.minValue, weaponOptions.weightOptions.maxValue, itemData, rng);
 			}
 			if (weaponOptions.durabilityOptions != null) {
 				FE9WeaponRandomizer.randomizeWeaponDurability(weaponOptions.durabilityOptions.variance, weaponOptions.durabilityOptions.minValue, weaponOptions.durabilityOptions.maxValue, itemData, rng);
@@ -886,6 +900,14 @@ public class FE9Randomizer extends Randomizer {
 				}
 			} else {
 				table.addRow(new String[] {"Randomize Rewards", "NO"});
+			}
+			if (miscOptions.readDataFile) {
+				int x = 0;
+				for (String dataFile : miscOptions.dataFileSet) {
+					x += 1;
+					String[] filePath = dataFile.split(Pattern.quote(File.separator));
+					table.addRow(new String[]{"Data File " + x, filePath[filePath.length - 1]});
+				}
 			}
 		}
 		

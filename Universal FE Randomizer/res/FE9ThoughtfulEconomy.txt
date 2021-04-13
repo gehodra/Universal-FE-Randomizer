@@ -1,0 +1,106 @@
+#Items
+#Increase item costs, to make money more of a consideration, and promote selling items you don't need
+#Make throwing weapons weigh more, might not be the right approach, but 1-2 range is OP in vanilla
+#Increase cost of healing staves and lower uses, should make them grant exp faster barely and also limit potential turtling
+#Staff exp = 10 + itemCost/20
+itemCost,itemDurability,itemWeight
+IID_IRONSWORD:1.5x,,#Iron Sword
+IID_SLIMSWORD:2x,,#Slim Sword
+IID_STEELSWORD:2x,,#Steel Sword
+IID_SILVERSWORD:2x,,#Silver Sword
+IID_IRONBLADE:2x,,#Iron Blade
+IID_STEELBLADE:2x,,#Steel Blade
+IID_SILVERBLADE:2x,,#Silver Blade
+IID_POISONSWORD:2x,,#Venin Edge
+IID_LONGSWORD:2x,,#Regal Sword
+IID_BRAVESWORD:2x,,#Brave Sword
+IID_WATOU:2x,,#Vague Katti
+IID_KILLSWORD:2x,,#Killing Edge
+IID_ARMORKILLER:2x,,#Armorslayer
+IID_RANCEBASTER:2x,,#Laguzslayer
+IID_HORSEKILLER:2x,,#Longsword
+IID_RUNESWORD:2x,,#Runesword
+IID_IRONLANCE:1.5x,,#Iron Lance
+IID_SLIMLANCE:2x,,#Slim Lance
+IID_STEELLANCE:2x,,#Steel Lance
+IID_SILVERLANCE:2x,,#Silver Lance
+IID_POISONLANCE:2x,,#Venin Lance
+IID_BRAVELANCE:2x,,#Brave Lance
+IID_KILLERLANCE:2x,,#Killer Lance
+IID_KNIGHTKILLER:2x,,#Knight Killer
+IID_HANDSPEAR:2x,,15#Javelin
+IID_SLENDERSPEAR:2x,,20#Spear
+IID_FRAMELANCE:2x,,#Flame Lance
+IID_DRAGONRANCE:2x,,#Laguz Lance
+IID_AXEBASTER:2x,,15#Short Spear
+IID_IRONAXE:1.5x,,#Iron Axe
+IID_PRACTICEAXE:2x,,#Practice Axe
+IID_STEELAXE:2x,,#Steel Axe
+IID_SILVERAXE:2x,,#Silver Axe
+IID_POISONAXE:2x,,#Venin Axe
+IID_BRAVEAXE:2x,,#Brave Axe
+IID_KILLERAXE:2x,,#Killer Axe
+IID_POLEAXE:2x,,#Poleax
+IID_HAMMER:2x,,#Hammer
+IID_DEVILAXE:2x,,#Devil Axe
+IID_HANDAXE:2x,,18#Hand Axe
+IID_TOMAHAWK:2x,,24#Tomahawk
+IID_SONICAXE:2x,,#Bolt Axe
+IID_SWORDBASTER:2x,,#Short Axe
+IID_BEASTAXE:2x,,#Laguz Axe
+IID_URVAN:2x,,#Urvan
+IID_IRONBOW:1.5x,,#Iron Bow
+IID_STEELBOW:2x,,#Steel Bow
+IID_SILVERBOW:2x,,#Silver Bow
+IID_POISONBOW:2x,,#Venin Bow
+IID_KILLERBOW:2x,,#Killer Bow
+IID_BRAVEBOW:2x,,#Brave Bow
+IID_SHORTBOW:2x,,#Laguz Bow
+IID_LONGBOW:2x,,#Longbow
+IID_LONGLONGBOW:2x,,#Double Bow
+IID_LOFABOW:2x,,#Rolf's Bow
+IID_KNIFE:2x,,#Knife
+IID_DAGGER:2x,,#Dagger
+IID_STILETTO:2x,,#Stiletto
+IID_CROWBEAK:2x,,#Beak
+IID_LONGARCH:2x,,#Ballista
+IID_IRONARCH:2x,,#Iron Ballista
+IID_KILLERARCH:2x,,#Killer B
+IID_ONAGER:2x,,#Onager
+IID_FIRE:1.5x,,#Fire
+IID_ELFIRE:2x,,#Elfire
+IID_BOLGANONE:2x,,#Bolganone
+IID_FORBLAZE:2x,,#Rexflame
+IID_METEOR:2x,,#Meteor
+IID_WIND:1.5x,,#Wind
+IID_FLUTTER:2x,,#Vortex
+IID_ELWIND:2x,,#Elwind
+IID_TORNADO:2x,,#Tornado
+IID_FIMBULVETR:2x,,#Rexcalibur
+IID_BLIZZARD:2x,,#Blizzard
+IID_THUNDER:1.5x,,#Thunder
+IID_ELTHUNDER:2x,,#Elthunder
+IID_THORON:2x,,#Thoron
+IID_MJOLNIR:2x,,#Rexbolt
+IID_THUNDERSTORM:2x,,#Bolting
+IID_LIGHTNING:2x,,#Light
+IID_SHINE:2x,,#Shine
+IID_RESIRE:2x,,#Nosferatu
+IID_AURA:2x,,#Rexaura
+IID_PURGE:2x,,#Purge
+IID_GODDESSROD:x,,#Ashera Staff
+IID_LIVE:2x,25,#Heal
+IID_RELIVE:4x,.5x,#Mend
+IID_RECOVER:x,,#Recover
+IID_REBLOW:3x,.33x,#Physic
+IID_RESERVE:,,#Fortify
+IID_REST:,,#Restore
+IID_SILENCE:,,#Silence
+IID_SLEEP:,,#Sleep
+IID_BERSERK:,,#
+IID_WARP:,,#
+IID_RESCUE:,,#Rescue
+IID_TORCH:,,#Torch
+IID_HAMMERNE:,,#Hammerne
+IID_UNLOCK:,,#
+IID_COIN:,,#Coin

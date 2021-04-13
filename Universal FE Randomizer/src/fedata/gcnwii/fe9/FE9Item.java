@@ -33,7 +33,7 @@ public class FE9Item implements FEModifiableData {
 	private Long cachedItemDescriptionPointer;
 	
 	private Long cachedItemTypePointer;
-	private Long cachedItemSubtypePointer;
+	private Long cachedItemDamageTypePointer;
 	private Long cachedItemRankPointer;
 	
 	private Long cachedItemTrait1Pointer;
@@ -71,18 +71,18 @@ public class FE9Item implements FEModifiableData {
 		return cachedItemDescriptionPointer;
 	}
 	
-	public long getItemTypePointer() {
+	public long getItemEquipTypePointer() {
 		if (cachedItemTypePointer == null) { cachedItemTypePointer = readPointerAtOffset(0xC); }
 		return cachedItemTypePointer;
 	}
 	
-	public long getItemSubtypePointer() {
-		if (cachedItemSubtypePointer == null) { cachedItemSubtypePointer = readPointerAtOffset(0x10); }
-		return cachedItemSubtypePointer;
+	public long getItemDamageTypePointer() {
+		if (cachedItemDamageTypePointer == null) { cachedItemDamageTypePointer = readPointerAtOffset(0x10); }
+		return cachedItemDamageTypePointer;
 	}
 	
-	public void setItemSubtypePointer(long ptr) {
-		cachedItemSubtypePointer = ptr;
+	public void setItemDamageTypePointer(long ptr) {
+		cachedItemDamageTypePointer = ptr;
 		writePointerToOffset(ptr, 0x10);
 		wasModified = true;
 	}
@@ -362,13 +362,49 @@ public class FE9Item implements FEModifiableData {
 		data[0x52] = (byte)(bonus & 0xFF);
 		wasModified = true;
 	}
-		
-	public byte[] getRemainingBytes() {
-		return Arrays.copyOfRange(data, 0x53, 0x60);
+
+	public int getMovementBonus() {
+		return data[0x53];
 	}
+
+	public void setMovementBonus(int x) {
+		data[0x53] = (byte) (x & 0xFF);
+		wasModified = true;
+	}
+
+	public int getBuildBonus() {
+		return data[0x54];
+	}
+
+	public void setBuildBonus(int x) {
+		data[0x54] = (byte) (x & 0xFF);
+		wasModified = true;
+	}
+
+	public int getHPAlteration() {	return (data[0x55]); }
+	public void setHPAlteration(int x) { data[0x55] = (byte)(x & 0xFF); wasModified = true; }
+	public int getSTRAlteration() { return (data[0x56]); }
+	public void setSTRAlteration(int x) { data[0x56] = (byte)(x & 0xFF); wasModified = true; }
+	public int getMAGAlteration() { return (data[0x57]); }
+	public void setMAGAlteration(int x) { data[0x57] = (byte)(x & 0xFF); wasModified = true; }
+	public int getSKLAlteration() { return (data[0x58]); }
+	public void setSKLAlteration(int x) { data[0x58] = (byte)(x & 0xFF); wasModified = true; }
+	public int getSPDAlteration() { return (data[0x59]); }
+	public void setSPDAlteration(int x) { data[0x59] = (byte)(x & 0xFF); wasModified = true; }
+	public int getLCKAlteration() { return (data[0x5A]); }
+	public void setLCKAlteration(int x) { data[0x5A] = (byte)(x & 0xFF); wasModified = true; }
+	public int getDEFAlteration() { return (data[0x5B]); }
+	public void setDEFAlteration(int x) { data[0x5B] = (byte)(x & 0xFF); wasModified = true; }
+	public int getRESAlteration() { return (data[0x5C]); }
+	public void setRESAlteration(int x) { data[0x5C] = (byte)(x & 0xFF); wasModified = true; }
+
+    public byte[] getRemainingBytes()
+    {
+        return Arrays.copyOfRange(data, 0x5D, 0x60);
+    }
 	
 	public void setByteInRemainingBytes(byte value, int offset) {
-		if (offset >= 0x54 && offset < 0x60) {
+		if (offset >= 0x5D && offset < 0x60) {
 			data[offset] = value;
 			wasModified = true;
 		}

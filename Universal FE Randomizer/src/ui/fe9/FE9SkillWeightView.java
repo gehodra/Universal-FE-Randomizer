@@ -139,7 +139,7 @@ public class FE9SkillWeightView extends Composite {
 			
 			FormData viewData = new FormData();
 			viewData.left = new FormAttachment(previousView, 0, SWT.LEFT);
-			viewData.top = new FormAttachment(previousView, 5);
+			viewData.top = new FormAttachment(previousView, 0);
 			viewData.right = new FormAttachment(100, -5);
 			view.setLayoutData(viewData);
 			

@@ -1,0 +1,14 @@
+#Playable Characters
+#-10 Growths to Ike + mounted units
+hpGrowth,strgrowth,maggrowth,sklgrowth,spdgrowth,lckgrowth,defgrowth,resgrowth
+PID_IKE:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_TIAMAT:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_OSCAR:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_GEOFFRAY:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_KEVIN:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_TANIS:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_MAKAROV:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_STELLA:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_MARCIA:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_HAAR:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10
+PID_JILL:x-10,x-10,x-10,x-10,x-10,x-10,x-10,x-10

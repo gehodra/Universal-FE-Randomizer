@@ -1,15 +1,15 @@
 package ui;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import application.Main;
+import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe7.FE7Data;
+import fedata.gba.fe8.FE8Data;
+import fedata.gcnwii.fe9.FE9Data;
+import fedata.general.FEBase.GameType;
+import fedata.snes.fe4.FE4Data;
+import io.FileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -17,7 +17,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -40,19 +39,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import application.Main;
-import fedata.gba.fe6.FE6Data;
-import fedata.gba.fe7.FE7Data;
-import fedata.gba.fe8.FE8Data;
-import fedata.gcnwii.fe9.FE9Data;
-import fedata.general.FEBase.GameType;
-import fedata.snes.fe4.FE4Data;
-import io.FileHandler;
-import io.FileWriter;
-import io.gcn.GCNFileHandler;
-import io.gcn.GCNISOException;
-import io.gcn.GCNISOHandler;
 import random.gba.randomizer.GBARandomizer;
 import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
@@ -71,23 +57,27 @@ import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
-import ui.model.FE9OtherCharacterOptions;
 import util.DebugListener;
 import util.DebugPrinter;
 import util.DiffCompiler;
-import util.LZ77;
+import util.FileLogger;
+import util.LogLevel;
 import util.OptionRecorder;
-import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
+import util.SeedGenerator;
 import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MainView implements FileFlowDelegate {
 	
@@ -335,6 +325,7 @@ public class MainView implements FileFlowDelegate {
 			@Override
 			public void shellClosed(ShellEvent e) {
 				DebugPrinter.unregisterListener("consoleLog");
+				DebugPrinter.unregisterListener("fileLog");
 				consoleShellOpened = false;
 			}
 			
@@ -352,7 +343,10 @@ public class MainView implements FileFlowDelegate {
 		consoleLog.setHeaderVisible(true);
 		consoleLog.setLinesVisible(true);
 		consoleLog.setSize(400, 400);
-		
+
+		TableColumn levelColumn = new TableColumn(consoleLog, SWT.NONE);
+		levelColumn.setText("Level");
+		levelColumn.pack();
 		TableColumn categoryColumn = new TableColumn(consoleLog, SWT.NONE);
 		categoryColumn.setText("Namespace");
 		categoryColumn.pack();
@@ -369,14 +363,16 @@ public class MainView implements FileFlowDelegate {
 			public void controlMoved(ControlEvent e) {	
 			}
 		});
-		
+
+		DebugPrinter.registerListener(new FileLogger(MainView.class), "fileLog");
 		DebugPrinter.registerListener(new DebugListener() {
 			@Override
-			public void logMessage(String category, String message) {
+			public void logMessage(LogLevel level, String category, String message) {
 				try {
 					TableItem newItem = new TableItem(consoleLog, SWT.NONE);
-					newItem.setText(0, category);
-					newItem.setText(1, message);
+					newItem.setText(0, level.name());
+					newItem.setText(1, category);
+					newItem.setText(2, message);
 				} catch (SWTException e) {
 					e.printStackTrace();
 				}
@@ -611,7 +607,7 @@ public class MainView implements FileFlowDelegate {
 			buffData.right = new FormAttachment(fe4PromotionView, 0, SWT.RIGHT);
 			fe4EnemyBuffView.setLayoutData(buffData);
 			
-			miscView = new MiscellaneousView(container, SWT.NONE, type);
+			miscView = new MiscellaneousView(container, SWT.NONE, type, mainShell);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
@@ -640,7 +636,7 @@ public class MainView implements FileFlowDelegate {
 			conAffinityData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
 			conAffinityView.setLayoutData(conAffinityData);
 			
-			miscView = new MiscellaneousView(container, SWT.NONE, type);
+			miscView = new MiscellaneousView(container, SWT.NONE, type, mainShell);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
@@ -710,7 +706,7 @@ public class MainView implements FileFlowDelegate {
 			otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
 			otherCharOptionView.setLayoutData(otherData);
 			
-			miscView = new MiscellaneousView(container, SWT.NONE, type);
+			miscView = new MiscellaneousView(container, SWT.NONE, type, mainShell);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			
@@ -794,8 +790,10 @@ public class MainView implements FileFlowDelegate {
 			setupInfoLayout();
 			hasLoadedInfo = true;
 		}
-		
+
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Verifying File...");
 		MessageModal loadingModal = new MessageModal(mainShell, "Loading", "Verifying File...");
+
 		loadingModal.showRaw();
 		
 		try {

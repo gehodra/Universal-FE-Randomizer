@@ -1116,6 +1116,10 @@ public class FE9Data {
 		public static Set<Item> allNonWeaponEquips = new HashSet<Item>(Arrays.asList(KNIGHT_RING, LAGUZGUARD, BEORCGUARD, FULL_GUARD, KNIGHT_WARD,
 				DEMI_BAND, LAGUZ_BAND, SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND, WYVERN_BAND, MAGE_BAND, 
 				PRIEST_BAND, THIEF_BAND));
+
+		public static Set<Item> allGrowthBoosterEquips = new HashSet<Item>(Arrays.asList(KNIGHT_RING, KNIGHT_WARD,
+				SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND, WYVERN_BAND, MAGE_BAND,
+				PRIEST_BAND, THIEF_BAND));
 		
 		public static Set<Item> allStatBoosters = new HashSet<Item>(Arrays.asList(SERAPH_ROBE, ENERGY_DROP, SPIRIT_DUST, SECRET_BOOK, SPEEDWING,
 				ASHERA_ICON, DRACOSHIELD, TALISMAN, BOOTS, STATUE_FRAG, ARMS_SCROLL));
@@ -1145,6 +1149,17 @@ public class FE9Data {
 				SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU, WARP, FORTIFY, STILETTO));
 		public static Set<Item> allSRankWeapons = new HashSet<Item>(Arrays.asList(VAGUE_KATTI, WISHBLADE, URVAN, DOUBLE_BOW, REXFLAME, REXBOLT, REXCALIBUR,
 				REXAURA, ASHERA_STAFF));
+
+		public static Set<Item> allUnusedWeapons = new HashSet<>(Arrays.asList(DEVIL_AXE, URVAN, BRIGHT_BOW, REXFLAME, REXCALIBUR, BERSERK, WARP, UNLOCK));
+		public static Set<Item> allUnusedOther = new HashSet<>(Arrays.asList(SILVER_CARD));
+		public static Set<Item> allUnusedScrolls = new HashSet<>(Arrays.asList(PARAGON_SCROLL, CELERITY_SCROLL, IID_IMPREGNABLE, TEMPEST_SCROLL,
+		SERENITY_SCROLL, DAUNT_SCROLL, CANTO_SCROLL, BLOSSOM_SCROLL, REINFORCE_SCROLL, INSIGHT_SCROLL, VIGILANCE_SCROLL));
+		public static Set<Item> allUnusedItems = new HashSet<>();
+		static {
+			allUnusedItems.addAll(allUnusedWeapons);
+			allUnusedItems.addAll(allUnusedOther);
+			allUnusedItems.addAll(allUnusedScrolls);
+		}
 		
 		public static Set<Item> blacklistedWeapons = new HashSet<Item>(Arrays.asList(PRACTICE_AXE, PRACTICE_SWORD, DEVIL_AXE));
 		
@@ -1308,7 +1323,7 @@ public class FE9Data {
 		}
 		
 		public static Set<Chapter> chaptersWithAllDifficulties = new HashSet<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4,
-				CHAPTER_5, CHAPTER_6, CHAPTER_7, CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15,
+				CHAPTER_5, CHAPTER_6, CHAPTER_7, CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15,
 				CHAPTER_16, CHAPTER_17, CHAPTER_18, CHAPTER_19, CHAPTER_20, CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_24, CHAPTER_25, CHAPTER_26,
 				CHAPTER_27, CHAPTER_27_BK_FIGHT, CHAPTER_28, ENDGAME));
 		public static Set<Chapter> chaptersWithOnlyOneDifficulty = new HashSet<Chapter>(Arrays.asList(ALL_CHAPTERS, CHAPTER_5_CUTSCENE, CHAPTER_7_CUTSCENE,

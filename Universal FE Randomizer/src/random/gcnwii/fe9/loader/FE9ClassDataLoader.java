@@ -12,10 +12,17 @@ import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import java.util.Arrays;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTOC;
+import util.recordkeeper.ChangelogTable;
 
 public class FE9ClassDataLoader {
 	
@@ -243,7 +250,7 @@ public class FE9ClassDataLoader {
 	
 	public String getTraitForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
-		return fe8databin.stringForPointer(charClass.getMiscPointer());
+		return fe8databin.stringForPointer(charClass.getTraitPointer());
 	}
 	
 	public int getLaguzSTROffset(FE9Class laguzClass) {
@@ -277,13 +284,15 @@ public class FE9ClassDataLoader {
 	}
 	
 	public String getUnpromotedAIDForClass(FE9Class charClass) {
-		if (isPromotedClass(charClass) && !isLaguzClass(charClass)) { return null; }
+		if (charClass == null || FE9Data.CharacterClass.withJID(getJIDForClass(charClass)) == null ||
+			(isPromotedClass(charClass) && !isLaguzClass(charClass))) { return null; }
 		FE9Data.CharacterClass fe9CharClass = FE9Data.CharacterClass.withJID(getJIDForClass(charClass));
 		return fe9CharClass.getAidString();
 	}
 	
 	public String getPromotedAIDForClass(FE9Class charClass) {
 		FE9Data.CharacterClass fe9CharClass = FE9Data.CharacterClass.withJID(getJIDForClass(charClass));
+		if(fe9CharClass == null) return null;
 		if (isLaguzClass(charClass)) {
 			return fe9CharClass.getLaguzTransformedAidString();
 		} else if (isPromotedClass(charClass)) {
@@ -542,9 +551,16 @@ public class FE9ClassDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, 
 				"Race: " + stringForPointer(charClass.getRacePointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, 
-				"Unknown: " + stringForPointer(charClass.getMiscPointer(), handler, commonTextLoader));
+				"Trait: " + stringForPointer(charClass.getTraitPointer(), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, 
+				"Animation Pointer: " + stringForPointer(charClass.getAnimationPointer(), handler, commonTextLoader));
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown 3: " + WhyDoesJavaNotHaveThese.displayStringForBytes(charClass.getUnknown3Bytes()));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base Con: " + charClass.getBaseCON());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base Weight: " + charClass.getBaseWeight());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Movement Range: " + charClass.getMovementRange());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown Value: " + charClass.getUnknownByte());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Skill Capacity: " + charClass.getSkillCapacity());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown 3 bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(charClass.getUnknown3Bytes()));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base HP: " + charClass.getBaseHP());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base STR: " + charClass.getBaseSTR());
@@ -573,8 +589,15 @@ public class FE9ClassDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "DEF Growth: " + charClass.getDEFGrowth());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "RES Growth: " + charClass.getRESGrowth());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown 8-2: " + WhyDoesJavaNotHaveThese.displayStringForBytes(charClass.getLaguzData()));
-		
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "HP Alteration: " + charClass.getHPAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "STR Alteration: " + charClass.getSTRAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "MAG Alteration: " + charClass.getMAGAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "SKL Alteration: " + charClass.getSKLAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "SPD Alteration: " + charClass.getSPDAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "LCK Alteration: " + charClass.getLCKAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "DEF Alteration: " + charClass.getDEFAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "RES Alteration: " + charClass.getRESAlteration());
+                
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "===== End Printing Class =====");
 	}
 	
@@ -618,5 +641,205 @@ public class FE9ClassDataLoader {
 		} catch (GCNISOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void recordOriginalClassData(ChangelogBuilder builder, ChangelogSection classSection, 
+			FE9CommonTextLoader textData) {
+		ChangelogTOC classTOC = new ChangelogTOC("class-data");
+		classTOC.addClass("class-section-toc");
+		classSection.addElement(new ChangelogHeader(ChangelogHeader.HeaderLevel.HEADING_2, "Class Data", "class-data-header"));
+		classSection.addElement(classTOC);
+		
+		ChangelogSection pcDataSection = new ChangelogSection("class-data-container");
+		classSection.addElement(pcDataSection);
+		
+		for (FE9Class clazz : allClasses) {
+			createClassSection(clazz, textData, classTOC, pcDataSection, true);
+		}
+		
+		setupRules(builder);
+	}
+	
+	public void recordUpdatedClassData(ChangelogSection classSection,
+									   FE9CommonTextLoader textData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData,
+									   FE9ChapterDataLoader chapterData) {
+		ChangelogTOC classTOC = (ChangelogTOC)classSection.getChildWithIdentifier("class-data");
+		ChangelogSection pcDataSection = (ChangelogSection)classSection.getChildWithIdentifier("class-data-container");
+		for (FE9Class clazz : allClasses) {
+			createClassSection(clazz, textData, classTOC, pcDataSection, false);
+		}
+	}
+	
+	public String getPIDForClass(FE9Class clazz) {
+		if (clazz == null) { return null; }
+		if (clazz.getClassIDPointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(clazz.getClassIDPointer());
+		}
+		return pointerLookup(clazz.getClassIDPointer());
+	}
+	
+	private void createClassSection(FE9Class charClass, FE9CommonTextLoader textData, ChangelogTOC toc,
+			ChangelogSection parentSection, boolean isOriginal) {
+		String className = textData.textStringForIdentifier(getMJIDForClass(charClass));
+		String anchor = "class-data-" + getPIDForClass(charClass);
+		ChangelogTable characterDataTable;
+		ChangelogSection section;
+		if (isOriginal) {
+			section = new ChangelogSection(anchor + "-section");
+			section.addClass("class-data-section");
+			toc.addAnchorWithTitle(anchor, className);
+		
+			ChangelogHeader titleHeader = new ChangelogHeader(ChangelogHeader.HeaderLevel.HEADING_3, className, anchor);
+			titleHeader.addClass("class-data-title");
+			section.addElement(titleHeader);
+		
+			characterDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
+			characterDataTable.addClass("class-data-table");
+			characterDataTable.addRow(new String[] {"PID", getPIDForClass(charClass), ""});
+			characterDataTable.addRow(new String[] {"Name", className, ""});
+		} else {
+			section = (ChangelogSection)parentSection.getChildWithIdentifier(anchor + "-section");
+			characterDataTable = (ChangelogTable)section.getChildWithIdentifier(anchor + "-data-table");
+			characterDataTable.setContents(0, 2, getPIDForClass(charClass));
+			characterDataTable.setContents(1, 2, className);
+		}
+		
+		int row = 2;
+		
+		if (isOriginal) {
+			characterDataTable.addRow(new String[] {"HP Growth", charClass.getHPGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"STR Growth", charClass.getSTRGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"MAG Growth", charClass.getMAGGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"SKL Growth", charClass.getSKLGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"SPD Growth", charClass.getSPDGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"LCK Growth", charClass.getLCKGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"DEF Growth", charClass.getDEFGrowth() + "%", ""});
+			characterDataTable.addRow(new String[] {"RES Growth", charClass.getRESGrowth() + "%", ""});
+			
+			characterDataTable.addRow(new String[] {"Base HP", Integer.toString(charClass.getBaseHP()), ""});
+			characterDataTable.addRow(new String[] {"Base STR", Integer.toString(charClass.getBaseSTR()), ""});
+			characterDataTable.addRow(new String[] {"Base MAG", Integer.toString(charClass.getBaseMAG()), ""});
+			characterDataTable.addRow(new String[] {"Base SKL", Integer.toString(charClass.getBaseSKL()), ""});
+			characterDataTable.addRow(new String[] {"Base SPD", Integer.toString(charClass.getBaseSPD()), ""});
+			characterDataTable.addRow(new String[] {"Base LCK", Integer.toString(charClass.getBaseLCK()), ""});
+			characterDataTable.addRow(new String[] {"Base DEF", Integer.toString(charClass.getBaseDEF()), ""});
+			characterDataTable.addRow(new String[] {"Base RES", Integer.toString(charClass.getBaseRES()), ""});
+			
+			characterDataTable.addRow(new String[] {"HP Alteration", charClass.getHPAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"STR Alteration", charClass.getSTRAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"MAG Alteration", charClass.getMAGAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"SKL Alteration", charClass.getSKLAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"SPD Alteration", charClass.getSPDAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"LCK Alteration", charClass.getLCKAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"DEF Alteration", charClass.getDEFAlteration() + "%", ""});
+			characterDataTable.addRow(new String[] {"RES Alteration", charClass.getRESAlteration() + "%", ""});
+			
+			
+			characterDataTable.addRow(new String[] {"Unpromoted AID", getUnpromotedAIDForClass(charClass), ""});
+			characterDataTable.addRow(new String[] {"Promoted AID", getPromotedAIDForClass(charClass), ""});
+		} else {
+			characterDataTable.setContents(row++, 2, charClass.getHPGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSTRGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getMAGGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSKLGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSPDGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getLCKGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getDEFGrowth() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getRESGrowth() + "%");
+			
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseHP()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseSTR()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseMAG()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseSKL()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseSPD()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseLCK()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseDEF()));
+			characterDataTable.setContents(row++, 2, Integer.toString(charClass.getBaseRES()));
+			
+			characterDataTable.setContents(row++, 2, charClass.getHPAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSTRAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getMAGAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSKLAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getSPDAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getLCKAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getDEFAlteration() + "%");
+			characterDataTable.setContents(row++, 2, charClass.getRESAlteration() + "%");
+			
+			characterDataTable.setContents(row++, 2, getUnpromotedAIDForClass(charClass));
+			characterDataTable.setContents(row++, 2, getPromotedAIDForClass(charClass));
+		}
+		
+		if (isOriginal) {
+			section.addElement(characterDataTable);
+			parentSection.addElement(section);
+		}
+	}
+	
+	private void setupRules(ChangelogBuilder builder) {
+		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
+		tocStyle.setElementClass("class-section-toc");
+		tocStyle.addRule("display", "flex");
+		tocStyle.addRule("flex-direction", "row");
+		tocStyle.addRule("width", "75%");
+		tocStyle.addRule("align-items", "center");
+		tocStyle.addRule("justify-content", "center");
+		tocStyle.addRule("flex-wrap", "wrap");
+		tocStyle.addRule("margin-left", "auto");
+		tocStyle.addRule("margin-right", "auto");
+		builder.addStyle(tocStyle);
+		
+		ChangelogStyleRule tocItemAfter = new ChangelogStyleRule();
+		tocItemAfter.setOverrideSelectorString(".class-section-toc div:not(:last-child)::after");
+		tocItemAfter.addRule("content", "\"|\"");
+		tocItemAfter.addRule("margin", "0px 5px");
+		builder.addStyle(tocItemAfter);
+		
+		ChangelogStyleRule pcContainer = new ChangelogStyleRule();
+		pcContainer.setElementIdentifier("class-data-container");
+		pcContainer.addRule("display", "flex");
+		pcContainer.addRule("flex-direction", "row");
+		pcContainer.addRule("flex-wrap", "wrap");
+		pcContainer.addRule("justify-content", "center");
+		pcContainer.addRule("margin-left", "10px");
+		pcContainer.addRule("margin-right", "10px");
+		builder.addStyle(pcContainer);
+		
+		
+		ChangelogStyleRule characterSection = new ChangelogStyleRule();
+		characterSection.setElementClass("class-data-section");
+		characterSection.addRule("margin", "20px");
+		characterSection.addRule("flex", "0 0 400px");
+		builder.addStyle(characterSection);
+		
+		ChangelogStyleRule tableStyle = new ChangelogStyleRule();
+		tableStyle.setElementClass("class-data-table");
+		tableStyle.addRule("width", "100%");
+		tableStyle.addRule("border", "1px solid black");
+		builder.addStyle(tableStyle);
+		
+		ChangelogStyleRule titleStyle = new ChangelogStyleRule();
+		titleStyle.setElementClass("class-data-title");
+		titleStyle.addRule("text-align", "center");
+		builder.addStyle(titleStyle);
+		
+		ChangelogStyleRule columnStyle = new ChangelogStyleRule();
+		columnStyle.setElementClass("class-data-table");
+		columnStyle.setChildTags(new ArrayList<String>(Arrays.asList("td", "th")));
+		columnStyle.addRule("border", "1px solid black");
+		columnStyle.addRule("padding", "5px");
+		builder.addStyle(columnStyle);
+		
+		ChangelogStyleRule firstColumnStyle = new ChangelogStyleRule();
+		firstColumnStyle.setOverrideSelectorString(".class-data-table td:first-child");
+		firstColumnStyle.addRule("width", "20%");
+		firstColumnStyle.addRule("text-align", "right");
+		builder.addStyle(firstColumnStyle);
+		
+		ChangelogStyleRule otherColumnStyle = new ChangelogStyleRule();
+		otherColumnStyle.setOverrideSelectorString(".class-data-table th:not(:first-child)");
+		otherColumnStyle.addRule("width", "40%");
+		builder.addStyle(otherColumnStyle);
 	}
 }

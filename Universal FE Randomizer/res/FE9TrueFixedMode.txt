@@ -1,0 +1,7 @@
+#Remove growth alterations from enemies and equipment, making fixed mode truly fixed
+#Also removes growth alterations from bands, making them useless
+#Could be fixed by adding extra lines afterwards that reset them,
+#or by using less general regex, but I don't like the bands anyway, so two birds
+hpAlteration,strAlteration,magAlteration,sklAlteration,spdAlteration,lckAlteration,defAlteration,resAlteration
+JID_.*:0,0,0,0,0,0,0,0
+IID_.*:0,0,0,0,0,0,0,0

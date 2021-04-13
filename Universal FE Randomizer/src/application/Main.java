@@ -1,8 +1,9 @@
 package application;
 
-import org.eclipse.swt.widgets.*;
-
+import org.eclipse.swt.widgets.Display;
 import ui.MainView;
+import util.DebugPrinter;
+import util.FileLogger;
 
 public class Main {
 	
@@ -10,7 +11,13 @@ public class Main {
 	static MainView mainView;
 
 	public static void main(String[] args) {
-		
+
+
+		if(System.getProperty("logToFile") != null)
+		{
+			DebugPrinter.registerListener(new FileLogger(Main.class), "fileLog");
+		}
+
 		 /* Instantiate Display object, it represents SWT session */
 		  mainDisplay = new Display();
 

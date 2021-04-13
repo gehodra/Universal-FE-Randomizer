@@ -2,6 +2,6 @@ package util;
 
 public interface DebugListener {
 	
-	public void logMessage(String category, String message);
+	public void logMessage(LogLevel level, String category, String message);
 
 }

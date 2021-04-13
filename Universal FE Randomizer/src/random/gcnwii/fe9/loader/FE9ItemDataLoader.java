@@ -146,7 +146,7 @@ public class FE9ItemDataLoader {
 			FE9Item item = new FE9Item(data, dataOffset);
 			allItems.add(item);
 			
-			//debugPrintItem(item, handler, commonTextLoader);
+			debugPrintItem(item, handler, commonTextLoader);
 			long iidPtr = item.getItemIDPointer();
 			String iid = fe8databin.stringForPointer(iidPtr);
 			idLookup.put(iid, item);
@@ -175,11 +175,11 @@ public class FE9ItemDataLoader {
 	}
 	
 	public String getEquipType(FE9Item item) {
-		return fe8databin.stringForPointer(item.getItemTypePointer());
+		return fe8databin.stringForPointer(item.getItemEquipTypePointer());
 	}
 	
-	public String getRealType(FE9Item item) {
-		return fe8databin.stringForPointer(item.getItemSubtypePointer());
+	public String getDamageType(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemDamageTypePointer());
 	}
 	
 	public void setRealType(FE9Item item, String typeString) {
@@ -192,7 +192,7 @@ public class FE9ItemDataLoader {
 			fe8databin.commitAdditions();
 			ptr = fe8databin.pointerForString(typeString);
 		}
-		item.setItemSubtypePointer(ptr);
+		item.setItemDamageTypePointer(ptr);
 	}
 	
 	public String getRank(FE9Item item) {
@@ -512,7 +512,7 @@ public class FE9ItemDataLoader {
 			break;
 		case REVERSE_TRIANGLE: {
 			if (isLaguzWeapon(item)) { return false; }
-			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getDamageType(item));
 			int triangleAffinity = rng.nextInt(3);
 			switch (type) {
 			case SWORD:
@@ -545,7 +545,7 @@ public class FE9ItemDataLoader {
 		}
 		case EXTEND_RANGE: {
 			if (isLaguzWeapon(item)) { return false; }
-			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getDamageType(item));
 			switch (type) {
 			case SWORD:
 				if (item.getMaximumRange() == 1) {
@@ -620,7 +620,7 @@ public class FE9ItemDataLoader {
 			break;
 		case MAGIC_DAMAGE:
 			if (doesMagicDamage(item)) { return false; }
-			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getDamageType(item));
 			switch (type) {
 			case SWORD:
 				try {
@@ -771,7 +771,7 @@ public class FE9ItemDataLoader {
 			case BRAVE:
 				return "Strikes consecutively.";
 			case REVERSE_TRIANGLE:
-				switch (FE9Data.Item.ItemType.typeWithString(getRealType(item))) {
+				switch (FE9Data.Item.ItemType.typeWithString(getDamageType(item))) {
 				case SWORD:
 					return "Good against axes, weak against lances.";
 				case LANCE:
@@ -874,9 +874,9 @@ public class FE9ItemDataLoader {
 		if (item.getSTRBonus() > 0 || item.getMAGBonus() > 0 || item.getSKLBonus() > 0 || item.getSPDBonus() > 0 || 
 				item.getLCKBonus() > 0 || item.getDEFBonus() > 0 || item.getRESBonus() > 0) { effects.add(WeaponEffect.STAT_BOOST); }
 		if (hasTrait(item, FE9Data.Item.WeaponTraits.STEAL_HP.getTraitString())) { effects.add(WeaponEffect.STEAL_HP); }
-		if (!getEquipType(item).equals(getRealType(item)) && FE9Data.Item.ItemType.typeWithString(getEquipType(item)).isWeaponType()) {
+		if (!getEquipType(item).equals(getDamageType(item)) && FE9Data.Item.ItemType.typeWithString(getEquipType(item)).isWeaponType()) {
 			boolean equipIsMagic = FE9Data.Item.ItemType.typeWithString(getEquipType(item)).isMagicType();
-			boolean realIsMagic = FE9Data.Item.ItemType.typeWithString(getRealType(item)).isMagicType(); 
+			boolean realIsMagic = FE9Data.Item.ItemType.typeWithString(getDamageType(item)).isMagicType(); 
 			if (!equipIsMagic && realIsMagic) {
 				effects.add(WeaponEffect.MAGIC_DAMAGE);
 			} else if ((equipIsMagic && realIsMagic) || (!equipIsMagic && !realIsMagic)) {
@@ -1243,7 +1243,18 @@ public class FE9ItemDataLoader {
 		
 		return fe9ItemListFromSet(fe9DataItems);
 	}
-	
+
+	public List<FE9Item> getBoosterReplacement(FE9Item originalItem) {
+		if (originalItem == null) {
+			return null;
+		}
+		Set<FE9Data.Item> fe9DataItems = new HashSet<FE9Data.Item>();
+		if (isStatBooster(originalItem)) {
+			fe9DataItems.add(FE9Data.Item.COIN);
+		}
+		return fe9ItemListFromSet(fe9DataItems);
+	}
+        
 	public List<FE9Item> getPossibleRewards() {
 		Set<FE9Data.Item> fe9DataItems = new HashSet<FE9Data.Item>();
 		fe9DataItems.addAll(FE9Data.Item.allDroppableWeapons());
@@ -1256,6 +1267,21 @@ public class FE9ItemDataLoader {
 		}
 		
 		return fe9ItemListFromSet(fe9DataItems);
+	}
+
+	public List<FE9Item> nonWeaponEquips()
+	{
+		return fe9ItemListFromSet(Item.allNonWeaponEquips);
+	}
+
+	public List<FE9Item> growthBoosterEquips()
+	{
+		return fe9ItemListFromSet(Item.allGrowthBoosterEquips);
+	}
+
+	public List<FE9Item> statBoosters()
+	{
+		return fe9ItemListFromSet(Item.allStatBoosters);
 	}
 	
 	private List<FE9Item> fe9ItemListFromSet(Set<FE9Data.Item> fe9dataItemSet) {
@@ -1312,34 +1338,34 @@ public class FE9ItemDataLoader {
 				"MH_I: " + stringForPointer(item.getItemDescriptionPointer(), handler, commonTextLoader));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Type: " + stringForPointer(item.getItemTypePointer(), handler, commonTextLoader));
+				"Type: " + stringForPointer(item.getItemEquipTypePointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Subtype?: " + stringForPointer(item.getItemSubtypePointer(), handler, commonTextLoader));
+				"Damage Type: " + stringForPointer(item.getItemDamageTypePointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
 				"Rank: " + stringForPointer(item.getItemRankPointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Restrictions: " + stringForPointer(item.getItemTrait1Pointer(), handler, commonTextLoader));
+				"Trait 1: " + stringForPointer(item.getItemTrait1Pointer(), handler, commonTextLoader));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 1: " + stringForPointer(item.getItemTrait2Pointer(), handler, commonTextLoader));
+				"Trait 2: " + stringForPointer(item.getItemTrait2Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 2: " + stringForPointer(item.getItemTrait3Pointer(), handler, commonTextLoader));
+				"Trait 3: " + stringForPointer(item.getItemTrait3Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 3: " + stringForPointer(item.getItemTrait4Pointer(), handler, commonTextLoader));
+				"Trait 4: " + stringForPointer(item.getItemTrait4Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 4: " + stringForPointer(item.getItemTrait5Pointer(), handler, commonTextLoader));
+				"Trait 5: " + stringForPointer(item.getItemTrait5Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 5: " + stringForPointer(item.getItemTrait6Pointer(), handler, commonTextLoader));
+				"Trait 6: " + stringForPointer(item.getItemTrait6Pointer(), handler, commonTextLoader));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Effectiveness: " + stringForPointer(item.getItemEffectiveness1Pointer(), handler, commonTextLoader));
+				"Effectiveness 1: " + stringForPointer(item.getItemEffectiveness1Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 6: " + stringForPointer(item.getItemEffectiveness2Pointer(), handler, commonTextLoader));
+				"Effectiveness 2: " + stringForPointer(item.getItemEffectiveness2Pointer(), handler, commonTextLoader));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Effect Animation: " + stringForPointer(item.getItemEffectAnimation1Pointer(), handler, commonTextLoader));
+				"Effect Animation 1: " + stringForPointer(item.getItemEffectAnimation1Pointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 7: " + stringForPointer(item.getItemEffectAnimation2Pointer(), handler, commonTextLoader));
+				"Effect Animation 2: " + stringForPointer(item.getItemEffectAnimation2Pointer(), handler, commonTextLoader));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Cost per Use: " + item.getItemCost());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Durability: " + item.getItemDurability());
@@ -1349,7 +1375,7 @@ public class FE9ItemDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Critical: " + item.getItemCritical());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Range: " + item.getMinimumRange() + " ~ " + item.getMaximumRange());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Item Icon: " + item.getIconNumber());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Icon Number: " + item.getIconNumber());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Weapon EXP: " + item.getWeaponExperience());
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "HP Bonus: " + item.getHPBonus());
@@ -1360,6 +1386,17 @@ public class FE9ItemDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "LCK Bonus: " + item.getLCKBonus());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "DEF Bonus: " + item.getDEFBonus());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "RES Bonus: " + item.getRESBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Movement Bonus: " + item.getMovementBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Build Bonus: " + item.getBuildBonus());
+		
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "HP Alteration: " + item.getHPAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "STR Alteration: " + item.getSTRAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "MAG Alteration: " + item.getMAGAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "SKL Alteration: " + item.getSKLAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "SPD Alteration: " + item.getSPDAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "LCK Alteration: " + item.getLCKAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "DEF Alteration: " + item.getDEFAlteration());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "RES Alteration: " + item.getRESAlteration());
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
 				"Remaining Bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(item.getRemainingBytes()));
@@ -1425,17 +1462,19 @@ public class FE9ItemDataLoader {
 			itemDataTable.addRow(new String[] {"IID", iidOfItem(item), ""});
 			itemDataTable.addRow(new String[] {"Name", itemName, ""});
 			itemDataTable.addRow(new String[] {"Description", textData.textStringForIdentifier(fe8databin.stringForPointer(item.getItemDescriptionPointer())), ""});
-			itemDataTable.addRow(new String[] {"Type", fe8databin.stringForPointer(item.getItemTypePointer()), ""});
-			itemDataTable.addRow(new String[] {"Sub-type", fe8databin.stringForPointer(item.getItemSubtypePointer()), ""});
+			itemDataTable.addRow(new String[] {"Type", fe8databin.stringForPointer(item.getItemEquipTypePointer()), ""});
+			itemDataTable.addRow(new String[] {"Damage Type", fe8databin.stringForPointer(item.getItemDamageTypePointer()), ""});
 		} else {
 			section = (ChangelogSection)parentSection.getChildWithIdentifier(anchor + "-section");
 			itemDataTable = (ChangelogTable)section.getChildWithIdentifier(anchor + "-data-table");
 			itemDataTable.setContents(0, 2, iidOfItem(item));
 			itemDataTable.setContents(1, 2, itemName);
 			itemDataTable.setContents(2, 2, textData.textStringForIdentifier(fe8databin.stringForPointer(item.getItemDescriptionPointer())));
-			itemDataTable.setContents(3, 2, fe8databin.stringForPointer(item.getItemTypePointer()));
-			itemDataTable.setContents(4, 2, fe8databin.stringForPointer(item.getItemSubtypePointer()));
+			itemDataTable.setContents(3, 2, fe8databin.stringForPointer(item.getItemEquipTypePointer()));
+			itemDataTable.setContents(4, 2, fe8databin.stringForPointer(item.getItemDamageTypePointer()));
 		}
+		
+		int row = 5;
 		
 		if (isWeapon(item)) {
 			if (isOriginal) {
@@ -1454,22 +1493,40 @@ public class FE9ItemDataLoader {
 				itemDataTable.addRow(new String[] {"Weight", Integer.toString(item.getItemWeight()), ""});
 				itemDataTable.addRow(new String[] {"Critical", Integer.toString(item.getItemCritical()), ""});
 				itemDataTable.addRow(new String[] {"Range", item.getMinimumRange() + " ~ " + item.getMaximumRange(), ""});
+				itemDataTable.addRow(new String[] {"Cost", Integer.toString(item.getItemCost()), ""});
+				itemDataTable.addRow(new String[] {"HP Alteration", item.getHPAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"STR Alteration", item.getSTRAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"MAG Alteration", item.getMAGAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"SKL Alteration", item.getSKLAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"SPD Alteration", item.getSPDAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"LCK Alteration", item.getLCKAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"DEF Alteration", item.getDEFAlteration() + "%", ""});
+				itemDataTable.addRow(new String[]{"RES Alteration", item.getRESAlteration() + "%", ""});
 			} else {
-				itemDataTable.setContents(5, 2, weaponRankForItem(item).toString());
-				itemDataTable.setContents(6, 2, fe8databin.stringForPointer(item.getItemTrait1Pointer()));
-				itemDataTable.setContents(7, 2, fe8databin.stringForPointer(item.getItemTrait2Pointer()));
-				itemDataTable.setContents(8, 2, fe8databin.stringForPointer(item.getItemTrait3Pointer()));
-				itemDataTable.setContents(9, 2, fe8databin.stringForPointer(item.getItemTrait4Pointer()));
-				itemDataTable.setContents(10, 2, fe8databin.stringForPointer(item.getItemTrait5Pointer()));
-				itemDataTable.setContents(11, 2, fe8databin.stringForPointer(item.getItemTrait6Pointer()));
-				itemDataTable.setContents(12, 2, fe8databin.stringForPointer(item.getItemEffectiveness1Pointer()));
-				itemDataTable.setContents(13, 2, fe8databin.stringForPointer(item.getItemEffectiveness2Pointer()));
-				itemDataTable.setContents(14, 2, Integer.toString(item.getItemDurability()));
-				itemDataTable.setContents(15, 2, Integer.toString(item.getItemMight()));
-				itemDataTable.setContents(16, 2, Integer.toString(item.getItemAccuracy()));
-				itemDataTable.setContents(17, 2, Integer.toString(item.getItemWeight()));
-				itemDataTable.setContents(18, 2, Integer.toString(item.getItemCritical()));
-				itemDataTable.setContents(19, 2, item.getMinimumRange() + " ~ " + item.getMaximumRange());
+				itemDataTable.setContents(row++, 2, weaponRankForItem(item).toString());
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait1Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait2Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait3Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait4Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait5Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemTrait6Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemEffectiveness1Pointer()));
+				itemDataTable.setContents(row++, 2, fe8databin.stringForPointer(item.getItemEffectiveness2Pointer()));
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemDurability()));
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemMight()));
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemAccuracy()));
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemWeight()));
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemCritical()));
+				itemDataTable.setContents(row++, 2, item.getMinimumRange() + " ~ " + item.getMaximumRange());
+				itemDataTable.setContents(row++, 2, Integer.toString(item.getItemCost()));
+				itemDataTable.setContents(row++, 2, item.getHPAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getSTRAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getMAGAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getSKLAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getSPDAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getLCKAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getDEFAlteration() + "%");
+				itemDataTable.setContents(row++, 2, item.getRESAlteration() + "%");
 			}
 		}
 		
@@ -1542,5 +1599,11 @@ public class FE9ItemDataLoader {
 		otherColumnStyle.setOverrideSelectorString(".item-data-table th:not(:first-child)");
 		otherColumnStyle.addRule("width", "40%");
 		builder.addStyle(otherColumnStyle);
+	}
+        
+	public void commit() {
+		for (FE9Item fe9Item : allItems) {
+			fe9Item.commitChanges();
+		}
 	}
 }

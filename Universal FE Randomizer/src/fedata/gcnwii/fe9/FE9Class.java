@@ -32,7 +32,7 @@ public class FE9Class implements FEModifiableData {
 	private Long cachedSkill3Pointer;
 	
 	private Long cachedRacePointer;
-	private Long cachedMiscPointer;
+	private Long cachedTraitPointer;
 	
 	private Long cachedAnimationPointer;
 	
@@ -137,11 +137,11 @@ public class FE9Class implements FEModifiableData {
 		return cachedRacePointer;
 	}
 	
-	public long getMiscPointer() {
-		if (cachedMiscPointer == null) {
-			cachedMiscPointer = readPointerAtOffset(0x30);
+	public long getTraitPointer() {
+		if (cachedTraitPointer == null) {
+			cachedTraitPointer = readPointerAtOffset(0x30);
 		}
-		return cachedMiscPointer;
+		return cachedTraitPointer;
 	}
 	
 	public long getAnimationPointer() {
@@ -151,30 +151,24 @@ public class FE9Class implements FEModifiableData {
 		return cachedAnimationPointer;
 	}
 	
-	// The first byte in the unknown 8 bytes seems to be the class's base CON.
 	public int getBaseCON() {
 		return data[0x3C];
 	}
 	
-	// The second byte in the unknown 8 bytes seems to be the class's base weight.
 	public int getBaseWeight() {
-		return data[0x3C + 1];
+		return data[0x3D];
 	}
 	
-	// Third byte is movement range.
 	public int getMovementRange() {
-		return data[0x3C + 2];
+		return data[0x3E];
 	}
 	
-	// No idea what this is.
 	public int getUnknownByte() {
-		return data[0x3C + 3];
+		return data[0x3F];
 	}
 	
-	// The 5th byte in the unknown 8 bytes seems to be the skill capacity for the class.
-	// That's at offset 0x3C + 4
 	public int getSkillCapacity() {
-		return data[0x3C + 4];
+		return data[0x40];
 	}
 	
 	public byte[] getUnknown3Bytes() {
@@ -182,22 +176,38 @@ public class FE9Class implements FEModifiableData {
 	}
 	
 	public int getBaseHP() { return data[0x44]; }
+        public void setBaseHP(int newGrowth) { data[0x44] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseSTR() { return data[0x45]; }
+        public void setBaseSTR(int newGrowth) { data[0x45] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseMAG() { return data[0x46]; }
+        public void setBaseMAG(int newGrowth) { data[0x46] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseSKL() { return data[0x47]; }
+        public void setBaseSKL(int newGrowth) { data[0x47] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseSPD() { return data[0x48]; }
+        public void setBaseSPD(int newGrowth) { data[0x48] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseLCK() { return data[0x49]; }
+        public void setBaseLCK(int newGrowth) { data[0x49] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseDEF() { return data[0x4A]; }
+        public void setBaseDEF(int newGrowth) { data[0x4A] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getBaseRES() { return data[0x4B]; }
+        public void setBaseRES(int newGrowth) { data[0x4B] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	
 	public int getMaxHP() { return data[0x4C]; }
+        public void setMaxHP(int newGrowth) { data[0x4C] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxSTR() { return data[0x4D]; }
+        public void setMaxSTR(int newGrowth) { data[0x4D] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxMAG() { return data[0x4E]; }
+        public void setMaxMAG(int newGrowth) { data[0x4E] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxSKL() { return data[0x4F]; }
+        public void setMaxSKL(int newGrowth) { data[0x4F] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxSPD() { return data[0x50]; }
+        public void setMaxSPD(int newGrowth) { data[0x50] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxLCK() { return data[0x51]; }
+        public void setMaxLCK(int newGrowth) { data[0x51] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxDEF() { return data[0x52]; }
+        public void setMaxDEF(int newGrowth) { data[0x52] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getMaxRES() { return data[0x53]; }
+        public void setMaxRES(int newGrowth) { data[0x53] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	
 	public int getHPGrowth() { return (data[0x54] & 0xFF); }
 	public void setHPGrowth(int newGrowth) { data[0x54] = (byte)(newGrowth & 0xFF); wasModified = true; }
@@ -215,10 +225,23 @@ public class FE9Class implements FEModifiableData {
 	public void setDEFGrowth(int newGrowth) { data[0x5A] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	public int getRESGrowth() { return (data[0x5B] & 0xFF); }
 	public void setRESGrowth(int newGrowth) { data[0x5B] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	
-	public byte[] getLaguzData() {
-		return Arrays.copyOfRange(data, 0x5C, 0x5C + 8);
-	}
+        
+        public int getHPAlteration() { return data[0x5C]; }
+	public void setHPAlteration(int newGrowth) { data[0x5C] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getSTRAlteration() { return data[0x5D]; }
+	public void setSTRAlteration(int newGrowth) { data[0x5D] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getMAGAlteration() { return data[0x5E]; }
+	public void setMAGAlteration(int newGrowth) { data[0x5E] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getSKLAlteration() { return data[0x5F]; }
+	public void setSKLAlteration(int newGrowth) { data[0x5F] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getSPDAlteration() { return data[0x60]; }
+	public void setSPDAlteration(int newGrowth) { data[0x60] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getLCKAlteration() { return data[0x61]; }
+	public void setLCKAlteration(int newGrowth) { data[0x61] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getDEFAlteration() { return data[0x62]; }
+	public void setDEFAlteration(int newGrowth) { data[0x62] = (byte)(newGrowth & 0xFF); wasModified = true; }
+	public int getRESAlteration() { return data[0x63]; }
+	public void setRESAlteration(int newGrowth) { data[0x63] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);

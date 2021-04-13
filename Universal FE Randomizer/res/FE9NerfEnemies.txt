@@ -1,0 +1,11 @@
+#Enemies
+#-7 Defense, these guys were already really hard
+basedef
+PID_ASHNARD:x-7
+PID_ASHNARD2:x-7
+PID_BLACKKNIGHT:x-7
+
+#-5 Defense to Red dragons so they won't be quite so tanky.
+#This has the unintentional side effect of nerfing Ena as well
+basedef
+JID_DRAGON_R:x-5

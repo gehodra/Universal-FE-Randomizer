@@ -20,7 +20,9 @@ public class DebugPrinter {
 		FE9_CLASS_LOADER("FE9 Class Loader"), FE9_ITEM_LOADER("FE9 Item Loader"), FE9_SKILL_LOADER("FE9 Skill Loader"),
 		FE9_CHAPTER_LOADER("FE9 Chapter Loader"), FE9_ARMY_LOADER("FE9 Army Loader"), FE9_RANDOM_CLASSES("FE9 Class Randomization"),
 		FE9_CHAPTER_SCRIPT("FE9 Chapter Script"), FE9_CHAPTER_STRINGS("FE9 Chapter Strings"), DBX_HANDLER("DBX Handler"),
-		
+
+		FE9_CHAPTER_ARMY("FE9 Chapter Army"),
+		FE_DATA_BALANCER("FE Data Balancer"),
 		MISC("MISC");
 		
 		String label;
@@ -34,24 +36,36 @@ public class DebugPrinter {
 		if (shouldPrintLabel(label)) {
 			System.out.println("[" + label.label + "] " + output);
 		}
-		
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
+		Display.getDefault().asyncExec(() -> {
 				for (DebugListener listener : listeners.values()) {
-					listener.logMessage(label.label, output);
-				}	
+					listener.logMessage(LogLevel.INFO, label.label, output);
+				}
+		});
+	}
+
+	public static void log(LogLevel level, Key label, String output) {
+		if (shouldPrintLabel(label)) {
+			System.out.println("[" + label.label + "] " + output);
+		}
+		Display.getDefault().asyncExec(() -> {
+			for (DebugListener listener : listeners.values()) {
+				listener.logMessage(level, label.label, output);
 			}
 		});
 	}
 	
 	public static void error(Key label, String output) {
 		System.err.println("[" + label.label + "] " + output);
+		Display.getDefault().asyncExec(() -> {
+				for (DebugListener listener : listeners.values()) {
+					listener.logMessage(LogLevel.ERROR, label.label, output);
+				}
+		});
 	}
 	
 	public static void registerListener(DebugListener listener, String key) {
 		listeners.put(key, listener);
-		listener.logMessage("DebugPrinter", "Registered Listener. Ready to send messages.");
+		listener.logMessage(LogLevel.INFO, "DebugPrinter", "Registered Listener. Ready to send messages.");
 	}
 	
 	public static void unregisterListener(String key) {

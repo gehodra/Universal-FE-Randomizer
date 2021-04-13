@@ -175,6 +175,35 @@ public class FE9Character implements FEModifiableData {
 		wasModified = true;
 	}
 	
+	public byte[] getUnknown4Bytes() {
+		return Arrays.copyOfRange(data, 0x30, 0x34);
+	}
+	
+	public void setUnknown4Bytes(byte[] bytes) {
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(bytes, data, 0x30, 4);
+		wasModified = true;
+	}
+	
+	public int getLaguzTransformationStartingValue() {
+		return data[0x34];
+	}
+
+	public void setLaguzTransformationStartingValue(int startingValue) {
+		startingValue = WhyDoesJavaNotHaveThese.clamp(startingValue, 0, 20);
+		data[0x34] = (byte)(startingValue & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getUnknownValue()
+	{
+		return data[0x35];
+	}
+	
+	public void setUnknownValue(int x)
+	{
+		data[0x35] = (byte)(x & 0xFF);
+	}
+	
 	public int getLevel() {
 		return data[0x36];
 	}
@@ -341,31 +370,85 @@ public class FE9Character implements FEModifiableData {
 		wasModified = true;
 	}
 	
-	public byte[] getUnknown6Bytes() {
-		return Arrays.copyOfRange(data, 0x30, 0x36);
+	public int getStartingHPGrowth() {
+		return (data[0x49] & 0xFF);
 	}
 	
-	public void setUnknown6Bytes(byte[] sixBytes) {
-		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(sixBytes, data, 0x30, 6);
+	public void setStartingHPGrowth(int newHPGrowth) {
+		data[0x49] = (byte)(newHPGrowth & 0xFF);
 		wasModified = true;
 	}
 	
-	public int getLaguzTransformationStartingValue() {
-		return data[0x34];
+	public int getStartingSTRGrowth() {
+		return (data[0x4A] & 0xFF);
 	}
 	
-	public void setLaguzTransformationStartingValue(int startingValue) {
-		startingValue = WhyDoesJavaNotHaveThese.clamp(startingValue, 0, 20);
-		data[0x34] = (byte)(startingValue & 0xFF);
+	public void setStartingSTRGrowth(int newSTRGrowth) {
+		data[0x4A] = (byte)(newSTRGrowth & 0xFF);
 		wasModified = true;
 	}
 	
-	public byte[] getUnknown13Bytes() {
-		return Arrays.copyOfRange(data, 0x49, 0x54);
+	public int getStartingMAGGrowth() {
+		return (data[0x4B] & 0xFF);
 	}
 	
-	public void setUnknown13Bytes(byte[] eightBytes) {
-		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(eightBytes, data, 0x49, 13);
+	public void setStartingMAGGrowth(int newMAGGrowth) {
+		data[0x4B] = (byte)(newMAGGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStartingSKLGrowth() {
+		return (data[0x4C] & 0xFF);
+	}
+	
+	public void setStartingSKLGrowth(int newSKLGrowth) {
+		data[0x4C] = (byte)(newSKLGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStartingSPDGrowth() {
+		return (data[0x4D] & 0xFF);
+	}
+	
+	public void setStartingSPDGrowth(int newSPDGrowth) {
+		data[0x4D] = (byte)(newSPDGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStartingLCKGrowth() {
+		return (data[0x4E] & 0xFF);
+	}
+	
+	public void setStartingLCKGrowth(int newLCKGrowth) {
+		data[0x4E] = (byte)(newLCKGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStartingDEFGrowth() {
+		return (data[0x4F] & 0xFF);
+	}
+	
+	public void setStartingDEFGrowth(int newDEFGrowth) {
+		data[0x4F] = (byte)(newDEFGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStartingRESGrowth() {
+		return (data[0x50] & 0xFF);
+	}
+	
+	public void setStartingRESGrowth(int newRESGrowth) {
+		data[0x50] = (byte)(newRESGrowth & 0xFF);
+		wasModified = true;
+	}
+	
+	//Always 0
+	public byte[] getUnknown3Bytes() {
+		return Arrays.copyOfRange(data, 0x51, 0x54);
+	}
+	
+	public void setUnknown11Bytes(byte[] bytes) {
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(bytes, data, 0x49, 11);
 		wasModified = true;
 	}
 	

@@ -128,7 +128,8 @@ public class FE9CharacterDataLoader {
 			
 			idLookup.put(pid, character);
 			
-			if (sid1.equals(FE9Data.Skill.BOSS.getSID()) || sid2.equals(FE9Data.Skill.BOSS.getSID()) || sid3.equals(FE9Data.Skill.BOSS.getSID())) {
+			if (sid1.equals(FE9Data.Skill.BOSS.getSID()) || sid2.equals(FE9Data.Skill.BOSS.getSID()) || sid3.equals(FE9Data.Skill.BOSS.getSID()) ||
+					sid1.equals(FE9Data.Skill.FINAL_BOSS.getSID()) || sid2.equals(FE9Data.Skill.FINAL_BOSS.getSID()) || sid3.equals(FE9Data.Skill.FINAL_BOSS.getSID())) {
 				bossCharacters.add(character);
 			}
 			
@@ -601,6 +602,10 @@ public class FE9CharacterDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, 
 				"Promoted AID: " + stringForPointer(character.getPromotedAnimationPointer(), handler, commonTextLoader));
 		
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Unknown Bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(character.getUnknown4Bytes()));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Laguz Transformation Starting Value: " + character.getLaguzTransformationStartingValue());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Unknown Value: " + character.getUnknownValue());
+		
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Level: " + character.getLevel());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Build: " + character.getBuild());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Weight: " + character.getWeight());
@@ -623,8 +628,16 @@ public class FE9CharacterDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "DEF Growth: " + character.getDEFGrowth());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "RES Growth: " + character.getRESGrowth());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Unknown 6: " + WhyDoesJavaNotHaveThese.displayStringForBytes(character.getUnknown6Bytes()));
-		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Unknown 8: " + WhyDoesJavaNotHaveThese.displayStringForBytes(character.getUnknown13Bytes()));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting HP Growth: " + character.getStartingHPGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting STR Growth: " + character.getStartingSTRGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting MAG Growth: " + character.getStartingMAGGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting SKL Growth: " + character.getStartingSKLGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting SPD Growth: " + character.getStartingSPDGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting LCK Growth: " + character.getStartingLCKGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting DEF Growth: " + character.getStartingDEFGrowth());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Starting RES Growth: " + character.getStartingRESGrowth());
+		
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "3 Zeroes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(character.getUnknown3Bytes()));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "===== End Printing Character =====");
 	}
@@ -669,10 +682,10 @@ public class FE9CharacterDataLoader {
 		bossTOC.addClass("character-section-toc");
 		characterDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Boss Data", "boss-data-header"));
 		characterDataSection.addElement(bossTOC);
-		
+
 		ChangelogSection bossDataSection = new ChangelogSection("boss-data-section");
 		characterDataSection.addElement(bossDataSection);
-		
+
 		for (FE9Character character : bossCharacters) {
 			createBossSection(character, classData, skillData, textData, itemData, chapterData, bossTOC, bossDataSection, true);
 		}
